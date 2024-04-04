@@ -21,28 +21,23 @@ export class UsersService {
   create(user: CreateUserDto) {
     const newUser = {
       id: Date.now(),
-      name: user.name,
-      role: user.role,
+      ...user,
     };
 
     this.users.push(newUser);
-
     return newUser;
   }
 
   findAll(role?: string) {
-    if (role) {
-      return this.users.filter((u) => u.role === role);
-    }
+    if (role) return this.users.filter((u) => u.role === role);
+
     return this.users;
   }
 
   findOne(id: number) {
     const user = this.users.find((u) => u.id === id);
 
-    if (!user) {
-      return 'User not found';
-    }
+    if (!user) return 'User not found';
 
     return user;
   }
@@ -52,29 +47,23 @@ export class UsersService {
   }
 
   update(id: number, user: UpdateUserDto) {
-    let updatingUser = this.users.find((u) => u.id === id);
+    this.users = this.users.map((u) => {
+      if (u.id === id) {
+        return {
+          ...u,
+          ...user,
+        };
+      }
+      return u;
+    });
 
-    if (!updatingUser) {
-      return 'User not found';
-    }
-
-    // if you didn't understand this, search for it
-    updatingUser = {
-      ...updatingUser,
-      ...user,
-    };
-
-    this.users = this.users.map((u) => (u.id === id ? updatingUser : u));
-
-    return updatingUser;
+    return this.findOne(id);
   }
 
   remove(id: number) {
     const removingUser = this.users.find((u) => u.id === id);
 
-    if (!removingUser) {
-      return 'User not found';
-    }
+    if (!removingUser) return 'User not found';
 
     this.users = this.users.filter((u) => u.id !== id);
 
